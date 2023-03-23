@@ -10,7 +10,10 @@ add_library(exploration src/somecode.cpp)
 target_include_directories(exploration PRIVATE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
-set_target_properties(exploration PROPERTIES PUBLIC_HEADER "include/exploration/space.hpp")
+set_target_properties(exploration PROPERTIES
+  PUBLIC_HEADER "include/exploration/space.hpp"
+  WINDOWS_EXPORT_ALL_SYMBOLS true
+  )
 
 install(TARGETS exploration
   LIBRARY DESTINATION lib
