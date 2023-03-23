@@ -34,13 +34,11 @@ jobs:
       - name: Get package name Conan 1
         if: matrix.conan == '1.0'
         run: |
-          package_name=$(conan inspect --raw name .)
-          echo $package_name >> $GITHUB_ENV
+          echo "package_name=$(conan inspect --raw name .)" >> $GITHUB_ENV
       - name: Get package name Conan 2
         if: matrix.conan == '2.0'
         run: |
-          package_name=$(conan inspect -f json . | jq .name -r)
-          echo $package_name >> $GITHUB_ENV
+          echo "package_name=$(conan inspect -f json . | jq .name -r)" >> $GITHUB_ENV
       - name: Conan create
         run: |
           conan config install http://github.com/user/conan_config/.git --type git -sf conan${{ matrix.conan }}
