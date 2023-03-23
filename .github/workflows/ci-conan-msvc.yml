@@ -32,13 +32,13 @@ jobs:
         run: |
           conan remote add sintef ${{ env.CONAN_UPLOAD }}
       - name: Get package name Conan 1
-        if: matrix.conan == "1.0"
+        if: matrix.conan == '1.0'
         shell: pwsh
         run: |
           $package_name=conan inspect --raw name .
           echo $package_name >> $GITHUB_ENV
       - name: Get package name Conan 2
-        if: matrix.conan == "2.0"
+        if: matrix.conan == '2.0'
         shell: pwsh
         run: |
           $package_name=conan inspect -f json . | jq .name -r
