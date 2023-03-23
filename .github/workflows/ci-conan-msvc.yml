@@ -1,0 +1,62 @@
+---
+name: MSVC Conan
+
+on: [push, workflow_dispatch]
+
+env:
+  CONAN_UPLOAD: ${{ secrets.CONAN_URL }}
+  CONAN_PASSWORD_SINTEF: ${{ secrets.CONAN_PASSWORD }}
+  CONAN_LOGIN_USERNAME_SINTEF: ${{ secrets.CONAN_USER }}
+
+  # Move to config file
+  CONAN_RETRY_WAIT: 20
+  CONAN_RETRY: 10
+  CONAN_USER_HOME_SHORT: C:\c
+  CONAN_NON_INTERACTIVE: true
+  CONAN_USE_ALWAYS_SHORT_PATHS: true
+
+jobs:
+  conan-with-msvc:
+    name: Conan
+    runs-on: ${{ matrix.os }}
+    shell: pwsh
+    env:
+      USER_CHANNEL: "${{ matrix.conan == '1.0' && 'sintef/stable' || '--user sintef --channel stable' }}"
+      UPLOAD_FLAGS: "${{ matrix.conan == '1.0' && '--all' || '' }}"
+    strategy:
+      fail-fast: false
+      matrix:
+        conan: [1.0, 2.0]
+        compiler_version: [191, 192, 193]
+        build_type: [Debug, Release]
+        compiler_studio: [17]
+        os: [windows-2022]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install prerequisites
+        run: |
+          pip3 install --upgrade setuptools pip
+          pip3 install --upgrade conan~=${{ matrix.conan }}
+      - name: Configure Conan
+        run: |
+          conan remote add sintef ${{ env.CONAN_UPLOAD }}
+      - name: Conan 1.0 config
+        if: ${{ matrix.conan == "1.0" }}
+        run: |
+          $package_name=conan inspect --raw name .
+          echo $package_name >> $GITHUB_ENV
+      - name: Conan 2.0 config
+        if: ${{ matrix.conan == "2.0" }}
+        run: |
+          $package_name=conan inspect -f json . | jq .name -r
+          echo $package_name >> $GITHUB_ENV
+      - name: Conan create
+        run: |
+          conan create . -s build_type=${{ matrix.build_type }} `
+            -s compiler.version=${{ matrix.compiler_version }} `
+            -s compiler="msvc" `
+            -b missing -b outdated -b ${{env.package_name}}* `
+            ${{ env.USER_CHANNEL }}
+      - name: Conan upload
+        run: |
+          conan upload --confirm -r sintef ${{ env.package_name}}* --force ${{ env.UPLOAD_FLAGS }}

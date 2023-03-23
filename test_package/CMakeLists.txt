@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.13)
+project(ConanPackageTest)
+find_package(exploration CONFIG REQUIRED)
+add_executable(exe_test example.cpp)
+target_link_libraries(exe_test PRIVATE exploration::exploration)
