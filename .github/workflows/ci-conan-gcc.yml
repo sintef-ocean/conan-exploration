@@ -18,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        conan: [1.0, 2.0]
+        conan: ["1.0", "2.0"]
         profile: [gcc10]
         build_type: [Debug, Release]
     steps:
