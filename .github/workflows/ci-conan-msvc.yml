@@ -7,18 +7,13 @@ env:
   CONAN_UPLOAD: ${{ secrets.CONAN_URL }}
   CONAN_PASSWORD_SINTEF: ${{ secrets.CONAN_PASSWORD }}
   CONAN_LOGIN_USERNAME_SINTEF: ${{ secrets.CONAN_USER }}
-
-  # Move to config file
-  CONAN_RETRY_WAIT: 20
-  CONAN_RETRY: 10
-  CONAN_USER_HOME_SHORT: C:\c
-  CONAN_NON_INTERACTIVE: true
-  CONAN_USE_ALWAYS_SHORT_PATHS: true
+  matrix_os: windows-2022
+  matrix_profile: msvc17
 
 jobs:
   conan-with-msvc:
     name: Conan
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ env.matrix_os }}
     shell: pwsh
     env:
       USER_CHANNEL: "${{ matrix.conan == '1.0' && 'sintef/stable' || '--user sintef --channel stable' }}"
@@ -29,8 +24,6 @@ jobs:
         conan: [1.0, 2.0]
         compiler_version: [191, 192, 193]
         build_type: [Debug, Release]
-        compiler_studio: [17]
-        os: [windows-2022]
     steps:
       - uses: actions/checkout@v3
       - name: Install prerequisites
@@ -40,21 +33,22 @@ jobs:
       - name: Configure Conan
         run: |
           conan remote add sintef ${{ env.CONAN_UPLOAD }}
-      - name: Conan 1.0 config
+      - name: Get package name Conan 1
         if: ${{ matrix.conan == "1.0" }}
         run: |
           $package_name=conan inspect --raw name .
           echo $package_name >> $GITHUB_ENV
-      - name: Conan 2.0 config
+      - name: Get package name Conan 2
         if: ${{ matrix.conan == "2.0" }}
         run: |
           $package_name=conan inspect -f json . | jq .name -r
           echo $package_name >> $GITHUB_ENV
       - name: Conan create
         run: |
+          conan config install http://github.com/user/conan_config/.git --type git -sf conan${{ matrix.conan }}
           conan create . -s build_type=${{ matrix.build_type }} `
             -s compiler.version=${{ matrix.compiler_version }} `
-            -s compiler="msvc" `
+            -pr:b=${{ env.matrix_profile }} -pr:h=${{ env.matrix_profile }} `
             -b missing -b outdated -b ${{env.package_name}}* `
             ${{ env.USER_CHANNEL }}
       - name: Conan upload
