@@ -45,7 +45,7 @@ jobs:
           echo "package_name=$package_name" >> $GITHUB_ENV
       - name: Conan create
         run: |
-          conan config install http://github.com/user/conan_config/.git --type git -sf conan${{ matrix.conan }}
+          conan config install https://github.com/sintef-ocean/conan-configs.git --type git -sf conan${{ matrix.conan }}
           conan create . -s build_type=${{ matrix.build_type }} `
             -s compiler.version=${{ matrix.compiler_version }} `
             -pr:b=${{ env.matrix_profile }} -pr:h=${{ env.matrix_profile }} `

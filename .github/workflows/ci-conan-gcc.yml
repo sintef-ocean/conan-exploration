@@ -41,7 +41,7 @@ jobs:
           echo "package_name=$(conan inspect -f json . | jq .name -r)" >> $GITHUB_ENV
       - name: Conan create
         run: |
-          conan config install http://github.com/user/conan_config/.git --type git -sf conan${{ matrix.conan }}
+          conan config install https://github.com/sintef-ocean/conan-configs.git --type git -sf conan${{ matrix.conan }}
           conan create . -s build_type=${{ matrix.build_type }} `
             -pr:b=${{ matrix.profile }} -pr:h=${{ matrix.profile }} `
             -b missing -b outdated -b ${{env.package_name}}* `
