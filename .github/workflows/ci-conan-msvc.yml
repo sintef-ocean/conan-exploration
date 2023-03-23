@@ -7,14 +7,12 @@ env:
   CONAN_UPLOAD: ${{ secrets.CONAN_URL }}
   CONAN_PASSWORD_SINTEF: ${{ secrets.CONAN_PASSWORD }}
   CONAN_LOGIN_USERNAME_SINTEF: ${{ secrets.CONAN_USER }}
-  matrix_os: windows-2022
   matrix_profile: msvc17
 
 jobs:
   conan-with-msvc:
     name: Conan
-    runs-on: ${{ env.matrix_os }}
-    shell: pwsh
+    runs-on: windows-2022
     env:
       USER_CHANNEL: "${{ matrix.conan == '1.0' && 'sintef/stable' || '--user sintef --channel stable' }}"
       UPLOAD_FLAGS: "${{ matrix.conan == '1.0' && '--all' || '' }}"
@@ -34,12 +32,14 @@ jobs:
         run: |
           conan remote add sintef ${{ env.CONAN_UPLOAD }}
       - name: Get package name Conan 1
-        if: ${{ matrix.conan == "1.0" }}
+        if: matrix.conan == "1.0"
+        shell: pwsh
         run: |
           $package_name=conan inspect --raw name .
           echo $package_name >> $GITHUB_ENV
       - name: Get package name Conan 2
-        if: ${{ matrix.conan == "2.0" }}
+        if: matrix.conan == "2.0"
+        shell: pwsh
         run: |
           $package_name=conan inspect -f json . | jq .name -r
           echo $package_name >> $GITHUB_ENV
