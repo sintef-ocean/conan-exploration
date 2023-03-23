@@ -7,7 +7,7 @@ env:
   CONAN_UPLOAD: ${{ secrets.CONAN_URL }}
   CONAN_PASSWORD_SINTEF: ${{ secrets.CONAN_PASSWORD }}
   CONAN_LOGIN_USERNAME_SINTEF: ${{ secrets.CONAN_USER }}
-  matrix_profile: msvc17
+  CONFIG_URL: https://github.com/sintef-ocean/conan-configs.git
 
 jobs:
   conan-with-msvc:
@@ -20,6 +20,7 @@ jobs:
       fail-fast: false
       matrix:
         conan: ["1.0", "2.0"]
+        profile: [msvc17]
         compiler_version: [191, 192, 193]
         build_type: [Debug, Release]
     steps:
@@ -29,8 +30,7 @@ jobs:
           pip3 install --upgrade setuptools pip
           pip3 install --upgrade conan~=${{ matrix.conan }}
       - name: Configure Conan
-        run: |
-          conan remote add sintef ${{ env.CONAN_UPLOAD }}
+        run: conan remote add sintef ${{ env.CONAN_UPLOAD }}
       - name: Get package name Conan 1
         if: matrix.conan == '1.0'
         shell: pwsh
@@ -45,12 +45,11 @@ jobs:
           echo "package_name=$package_name" >> $GITHUB_ENV
       - name: Conan create
         run: |
-          conan config install https://github.com/sintef-ocean/conan-configs.git --type git -sf conan${{ matrix.conan }}
+          conan config install ${{ env.CONFIG_URL }} --type git -sf conan${{ matrix.conan }}
           conan create -s build_type=${{ matrix.build_type }} `
             -s compiler.version=${{ matrix.compiler_version }} `
-            -pr:b=${{ env.matrix_profile }} -pr:h=${{ env.matrix_profile }} `
+            -pr:b=${{ matrix.profile }} -pr:h=${{ matrix.profile }} `
             -b missing -b outdated -b ${{ env.package_name }}* `
             . ${{ env.USER_CHANNEL }}
       - name: Conan upload
-        run: |
-          conan upload --confirm -r sintef ${{ env.package_name }}* --force ${{ env.UPLOAD_FLAGS }}
+        run: conan upload --confirm -r sintef ${{ env.package_name }}* --force ${{ env.UPLOAD_FLAGS }}
