@@ -1,5 +1,5 @@
 ---
-name: GCC Conan
+name: Linux GCC
 
 on: [push, workflow_dispatch]
 

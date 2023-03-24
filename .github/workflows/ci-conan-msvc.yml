@@ -1,5 +1,5 @@
 ---
-name: MSVC Conan
+name: Windows MSVC
 
 on: [push, workflow_dispatch]
 
