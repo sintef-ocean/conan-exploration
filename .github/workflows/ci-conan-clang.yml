@@ -22,10 +22,10 @@ jobs:
       matrix:
         conan: ["1.0", "2.0"]
         profile: [clang]
-        compiler_version: [11, 12, 13]
+        compiler_version: [11, 12, 13, 14]
         build_type: [Debug, Release]
     container:
-      image: conanio/clang${{ matrix.compiler_version }}
+      image: conanio/clang${{ matrix.compiler_version }}-ubuntu18.04
       options: -u 0
     steps:
       - uses: actions/checkout@v3
