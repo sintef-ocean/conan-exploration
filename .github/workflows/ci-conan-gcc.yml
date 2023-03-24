@@ -24,13 +24,17 @@ jobs:
         profile: [gcc]
         compiler_version: [8, 9, 10, 11, 12]
         build_type: [Debug, Release]
+    container:
+      image: conanio/gcc${{ matrix.compiler_version }}
+      options: -u 0
     steps:
       - uses: actions/checkout@v3
       - name: Install prerequisites
         run: |
           sudo apt-get update
-          sudo pip3 install --upgrade setuptools pip
-          sudo pip3 install --upgrade conan~=${{ matrix.conan }}
+          sudo apt-get install -y jq
+          pip3 install --upgrade setuptools pip
+          pip3 install --upgrade conan~=${{ matrix.conan }}
       - name: Configure Conan
         run: conan remote add sintef ${{ env.CONAN_UPLOAD }}
       - name: Get package name Conan 1

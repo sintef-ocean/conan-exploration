@@ -32,8 +32,9 @@ jobs:
       - name: Install prerequisites
         run: |
           sudo apt-get update
-          sudo pip3 install --upgrade setuptools pip
-          sudo pip3 install --upgrade conan~=${{ matrix.conan }}
+          sudo apt-get install -y jq
+          pip3 install --upgrade setuptools pip
+          pip3 install --upgrade conan~=${{ matrix.conan }}
       - name: Configure Conan
         run: conan remote add sintef ${CONAN_UPLOAD}
       - name: Get package name Conan 1
